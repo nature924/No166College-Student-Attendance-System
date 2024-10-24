@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.XueshengKaoqinListDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.xuesheng_id as xueshengId
+        ,a.xuesheng_kaoqin_id as xueshengKaoqinId
+        ,a.xuesheng_kaoqin_list_types as xueshengKaoqinListTypes
+        ,a.insert_time as insertTime
+        ,a.update_time as updateTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.XueshengKaoqinListView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,xuesheng.xuesheng_uuid_number as xueshengUuidNumber
+        ,xuesheng.xuesheng_name as xueshengName
+        ,xuesheng.xuesheng_phone as xueshengPhone
+        ,xuesheng.xuesheng_id_number as xueshengIdNumber
+        ,xuesheng.xuesheng_photo as xueshengPhoto
+        ,xuesheng.xuesheng_email as xueshengEmail
+        ,xuesheng.jinyong_types as jinyongTypes
+        ,xueshengKaoqin.xuesheng_kaoqin_uuid_number as xueshengKaoqinUuidNumber
+        ,xueshengKaoqin.xuesheng_kaoqin_name as xueshengKaoqinName
+        ,xueshengKaoqin.xuesheng_kaoqin_types as xueshengKaoqinTypes
+        ,xueshengKaoqin.xuesheng_kaoqin_content as xueshengKaoqinContent
+        ,xueshengKaoqin.jiezhi_time as jiezhiTime
+
+        FROM xuesheng_kaoqin_list  a
+        left JOIN xuesheng xuesheng ON a.xuesheng_id = xuesheng.id
+        left JOIN xuesheng_kaoqin xueshengKaoqin ON a.xuesheng_kaoqin_id = xueshengKaoqin.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.xueshengId != null and params.xueshengId != ''">
+                and (
+                    a.xuesheng_id = #{params.xueshengId}
+                )
+            </if>
+            <if test="params.xueshengKaoqinId != null and params.xueshengKaoqinId != ''">
+                and (
+                    a.xuesheng_kaoqin_id = #{params.xueshengKaoqinId}
+                )
+            </if>
+            <if test="params.xueshengKaoqinListTypes != null and params.xueshengKaoqinListTypes != ''">
+                and a.xuesheng_kaoqin_list_types = #{params.xueshengKaoqinListTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.insertTime != null and params.insertTime != ''">
+                and a.insert_time = #{params.insertTime}
+            </if>
+            <if test=" params.updateTimeStart != '' and params.updateTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.update_time) >= UNIX_TIMESTAMP(#{params.updateTimeStart}) ]]>
+            </if>
+            <if test=" params.updateTimeEnd != '' and params.updateTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.update_time) <= UNIX_TIMESTAMP(#{params.updateTimeEnd}) ]]>
+            </if>
+            <if test="params.updateTime != null and params.updateTime != ''">
+                and a.update_time = #{params.updateTime}
+            </if>
+
+                <!-- 判断学生的id不为空 -->
+            <if test=" params.xueshengIdNotNull != '' and params.xueshengIdNotNull != null and params.xueshengIdNotNull != 'null' ">
+                and a.xuesheng_id IS NOT NULL
+            </if>
+            <if test="params.banjiId != null  and params.banjiId != ''">
+                and xuesheng.banji_id = #{params.banjiId}
+            </if>
+            <if test=" params.xueshengUuidNumber != '' and params.xueshengUuidNumber != null and params.xueshengUuidNumber != 'null' ">
+                and xuesheng.xuesheng_uuid_number like CONCAT('%',#{params.xueshengUuidNumber},'%')
+            </if>
+            <if test=" params.xueshengName != '' and params.xueshengName != null and params.xueshengName != 'null' ">
+                and xuesheng.xuesheng_name like CONCAT('%',#{params.xueshengName},'%')
+            </if>
+            <if test=" params.xueshengPhone != '' and params.xueshengPhone != null and params.xueshengPhone != 'null' ">
+                and xuesheng.xuesheng_phone like CONCAT('%',#{params.xueshengPhone},'%')
+            </if>
+            <if test=" params.xueshengIdNumber != '' and params.xueshengIdNumber != null and params.xueshengIdNumber != 'null' ">
+                and xuesheng.xuesheng_id_number like CONCAT('%',#{params.xueshengIdNumber},'%')
+            </if>
+            <if test=" params.xueshengEmail != '' and params.xueshengEmail != null and params.xueshengEmail != 'null' ">
+                and xuesheng.xuesheng_email like CONCAT('%',#{params.xueshengEmail},'%')
+            </if>
+            <if test="params.jinyongTypes != null  and params.jinyongTypes != ''">
+                and xuesheng.jinyong_types = #{params.jinyongTypes}
+            </if>
+
+                <!-- 判断学生考勤的id不为空 -->
+            <if test=" params.xueshengKaoqinIdNotNull != '' and params.xueshengKaoqinIdNotNull != null and params.xueshengKaoqinIdNotNull != 'null' ">
+                and a.xuesheng_kaoqin_id IS NOT NULL
+            </if>
+            <if test=" params.xueshengKaoqinUuidNumber != '' and params.xueshengKaoqinUuidNumber != null and params.xueshengKaoqinUuidNumber != 'null' ">
+                and xueshengKaoqin.xuesheng_kaoqin_uuid_number like CONCAT('%',#{params.xueshengKaoqinUuidNumber},'%')
+            </if>
+            <if test=" params.xueshengKaoqinName != '' and params.xueshengKaoqinName != null and params.xueshengKaoqinName != 'null' ">
+                and xueshengKaoqin.xuesheng_kaoqin_name like CONCAT('%',#{params.xueshengKaoqinName},'%')
+            </if>
+            <if test="params.xueshengKaoqinTypes != null  and params.xueshengKaoqinTypes != ''">
+                and xueshengKaoqin.xuesheng_kaoqin_types = #{params.xueshengKaoqinTypes}
+            </if>
+
+            <if test=" params.xueshengKaoqinContent != '' and params.xueshengKaoqinContent != null and params.xueshengKaoqinContent != 'null' ">
+                and xueshengKaoqin.xuesheng_kaoqin_content like CONCAT('%',#{params.xueshengKaoqinContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(xueshengKaoqin.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(xueshengKaoqin.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.insertTime != null and params.insertTime != ''">
+                and a.insert_time = #{params.insertTime}
+            </if>
+            <if test=" params.jiezhiTimeStart != '' and params.jiezhiTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(xueshengKaoqin.jiezhi_time) >= UNIX_TIMESTAMP(#{params.jiezhiTimeStart}) ]]>
+            </if>
+            <if test=" params.jiezhiTimeEnd != '' and params.jiezhiTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(xueshengKaoqin.jiezhi_time) <= UNIX_TIMESTAMP(#{params.jiezhiTimeEnd}) ]]>
+            </if>
+            <if test="params.jiezhiTime != null and params.jiezhiTime != ''">
+                and a.jiezhi_time = #{params.jiezhiTime}
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
